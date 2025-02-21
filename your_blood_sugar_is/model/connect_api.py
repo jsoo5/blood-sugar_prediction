@@ -2,13 +2,22 @@ import requests
 import numpy as np
 import json
 
+def get_endpoint_info(file_name):
+    with open(file_name) as f:
+        config = json.load(f)
+    return config
+
+
 ### Custom Vison API ###
 def predict_img(img, times):
-    # endpoint - 현재 iteration13 사용
-    endpoint = 'https://korms6tfirstproject4team-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/4b2acd23-4aee-4403-a306-255d6fbfac5a/classify/iterations/Iteration20/image'
+    # endpoint
+    config = get_endpoint_info('model/config.json')
+    endpoint, api_key = config['mld_endpoint_v2'], config['cv_api_key']
+
+    endpoint = config['cv_endpoint']
     headers = {
         'Content-Type' : 'application/octet-stream',
-        'Prediction-Key' : '22nCuj5dSly9FfIxCpKcwAxYYtcnXLyulD7wyIc0fgdn88cSKNUfJQQJ99BBACHYHv6XJ3w3AAAIACOGVIsM'
+        'Prediction-Key' : api_key
     }
     
     if isinstance(img, str):
@@ -33,23 +42,19 @@ def predict_img(img, times):
     # import json
     # print(json.dumps(response_json, indent=4))
     best_pred = response_json['predictions'][times]
-    if times < 3:
+    if times < 5:
         return best_pred['tagName']
     else:
         return None
 
 
+
 ### Machine Learning Designer API ###
 def request_gi_prediction(data_list):
-    
-    def get_mld_endpoint_info(file_name):
-        with open(file_name) as f:
-            config = json.load(f)
-
-        return config['mld_endpoint'], config['mld_api_key']
 
     # endpoint
-    endpoint, api_key = get_mld_endpoint_info('./config.json')
+    config = get_endpoint_info('model/config.json')
+    endpoint, api_key = config['mld_endpoint_v2'], config['mld_api_key_v2']
     headers = {
         'Cache-Control': 'no-cache',
         'Content-Type': 'application/json',

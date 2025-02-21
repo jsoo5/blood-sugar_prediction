@@ -1,9 +1,11 @@
 {
     "mld_endpoint": "http://f0ecde7f-f0ac-4752-a85f-ec48f70044be.koreacentral.azurecontainer.io/score",
     "mld_api_key": "Y6p6TDS0QyDokKUfybt0ELTDh8pOyvaR",
-    "cv_endpoint": "https://korms6tfirstproject4team-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/4b2acd23-4aee-4403-a306-255d6fbfac5a/classify/iterations/Iteration23/image",
+    "mld_endpoint_v2": "http://9695b52c-0ec5-4590-9600-886f936fd9a5.koreacentral.azurecontainer.io/score",
+    "mld_api_key_v2": "sGbvUdWd2SrWjjgZ2wEwyWwVhqa6KLqM",
+    "cv_endpoint": "https://korms6tfirstproject4team-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/4b2acd23-4aee-4403-a306-255d6fbfac5a/classify/iterations/Iteration20/image",
     "cv_api_key": "22nCuj5dSly9FfIxCpKcwAxYYtcnXLyulD7wyIc0fgdn88cSKNUfJQQJ99BBACHYHv6XJ3w3AAAIACOGVIsM",
     "mongodb_endpoint": "team4-db.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000",
     "mongodb_user": "teamadmin",
-	"mongodb_key": "bhfKYCj(;MA3x4EqBm6LgJ"
+    "mongodb_key": "bhfKYCj(;MA3x4EqBm6LgJ"
 }

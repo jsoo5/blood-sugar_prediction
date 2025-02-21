@@ -11,7 +11,7 @@ def calc_blood_value(gi, info):
     gi = round(float(gi))
     
     carbo = info[0]['carbohydrates']
-    gl = (gi * carbo) / 100
+    gl = (gi / 100) * carbo
     
     normal = 2.5
     abnormal = 5
@@ -19,7 +19,7 @@ def calc_blood_value(gi, info):
     min_value = gl * normal
     max_value = gl * abnormal
     
-    return f'{min_value} ~ {max_value}'
+    return f'{round(min_value)} ~ {round(max_value)}mg/dL'
 
 # 혈당부하지수 = (혈당지수 × 1회 섭취분량에 함유된 탄수화물 양) ÷ 100
 # 분류 10 이하: 저혈당부하지수, 11~19: 중혈당부하지수, 20 이상: 고혈당부하지수
