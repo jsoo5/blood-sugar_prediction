@@ -1,0 +1,11 @@
+{
+    "mld_endpoint": "",
+    "mld_api_key": "",
+    "mld_endpoint_v2": "",
+    "mld_api_key_v2": "",
+    "cv_endpoint": "",
+    "cv_api_key": "",
+    "mongodb_endpoint": "",
+    "mongodb_user": "",
+    "mongodb_key": ""
+}
