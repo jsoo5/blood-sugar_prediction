@@ -1,8 +1,8 @@
 import gradio as gr
 import time, os
 from model import connect_api as model
-from function import recommend_food as recommend
-from function import nutrition_info as nutrition
+from function.recommend_food import pick_low_gi_food
+from function.nutrition_info import get_nutrition_info
 from function import blood_sugar
 
 # 현재 파일을 실행한 경로로 이동
@@ -70,20 +70,20 @@ with gr.Blocks(css=css) as demo:
                                                   '가공', '통조림', '발효', '냉동', '탄산음료'], label='음식 구분', visible=False)
                         result_box = gr.Markdown(elem_classes="nanum-gothic-regular")
                         warning_box = gr.Markdown('<br/></br>⚠️ 본 결과는 기계학습을 통한 예측치이므로 맹목적인 신뢰보다는 참고용으로만 이용해주시기 바랍니다.</br>* 상승 혈당치는 건강한 사람~당뇨 환자 간의 예상 범위를 나타내며, 해당 음식을 100g 섭취했을 때의 기준 값입니다.</br>', visible=False)
-                        # 결과 확인용
-                        gi_textbox = gr.Text(label='Glycemic Index')
-
+                        
                     replay_button = gr.Button('다시 하기', interactive=False)                
                     try_state = gr.State(0)
                     food_name_state = gr.State('')
                     
                     def check_food(img_path, try_times=0):
+                        
                         food_name = model.predict_img(img_path, try_times)
                         if food_name != None:                            
                             return food_name, f'#### Q. 드신 음식이 {food_name}이(가) 맞나요?'
                         else:   # 아니오 5번 이상이면 데이터 없음 답변
                             return None, f'#### 죄송하지만 제가 알고 있는 음식이 아닌 것 같아요😭<br/>앞으로 더 많은 음식에 대해 공부해 올게요!'
                     
+
                     def select_answer(answer, img_path, try_times, food_name):
                         # 반환값: result_box, quest_box, warning_box, answer_radio, cooking_radio, try_state, food_name
                         if answer == '아니오':
@@ -99,43 +99,34 @@ with gr.Blocks(css=css) as demo:
                         else:
                             return '', gr.update(), gr.update(visible=False), gr.update(value=None), gr.update(value=None, visible=False), try_times, food_name
                         
-                    # def select_cooking(cooking_method, food_name):
-                    # 결과 확인용
-                    def select_cooking(cooking_method, food_name, gi_textbox):
+
+                    def select_cooking(cooking_method, food_name):
+
                         if cooking_method != None:
-                            return predict_values(food_name, cooking_method, gi_textbox)
+                            return predict_values(food_name, cooking_method)
                         else:
                             return ''
 
 
-                    # def predict_values(food_name, cooking_method):
-                    # 결과 확인용
-                    def predict_values(food_name, cooking_method, gi_textbox):
-                        info = nutrition.get_nutrition_info(food_name, cooking_method)
+                    def predict_values(food_name, cooking_method):
+
+                        info = get_nutrition_info(food_name, cooking_method)
                         pred_gi = model.request_gi_prediction(info)
-                        print(pred_gi)
-                        # 결과 확인용
-                        gi_textbox = pred_gi
                         gi_level, walking_degree = blood_sugar.classify_gi_level(pred_gi)
                         blood_value = blood_sugar.calc_blood_value(pred_gi, info)
-                        food_list = recommend.pick_low_gi_food(3)
-                        # return print_results(gi_level, blood_value, walking_degree, food_list, food_name)
-                        # 결과 확인용
-                        return print_results(gi_level, blood_value, walking_degree, food_list, food_name, gi_textbox)
+                        food_list = pick_low_gi_food(3)
+                        return print_results(gi_level, blood_value, walking_degree, food_list, food_name)
 
         
-                    # def print_results(gi_level, blood_value, walking_degree, food_list, food_name, gi_textbox):
-                    # 결과 확인용
                     def print_results(gi_level, blood_value, walking_degree, food_list, food_name, gi_textbox):
+
                         time.sleep(0.5)
                         outputs = ''
                         outputs += f'### <center>`{gi_level}` 식품인 </br>`{food_name}`을(를) 섭취하셨군요!</center>'
                         outputs += f'<center><br/>혈당이 `{blood_value}` 정도<br/>상승할 수 있어요.</center>'
                         outputs += f'<center><br/>혈당 스파이크 예방을 위해<br/>`{walking_degree}` 걸으세요🚶‍♀️🚶‍♂️<br/>고강도 운동은 오히려 혈당을 상승시킬 수 있어요.</center>'
                         outputs += f'<center><br/>다음 식사에는 저혈당지수 식품인<br/>`{food_list}` 등을 섭취하시는 건 어떤가요?😊</center>'
-                        # return outputs, gr.update(visible=True)
-                        # 결과 확인용
-                        return outputs, gr.update(visible=True), gi_textbox
+                        return outputs, gr.update(visible=True)
 
 
             img_box.change(fn=enable_button, inputs=img_box, outputs=[im_del_button])
@@ -144,9 +135,9 @@ with gr.Blocks(css=css) as demo:
             answer_radio.change(fn=select_answer, 
                                 inputs=[answer_radio, img_box, try_state, food_name_state], 
                                 outputs=[result_box, quest_box, warning_box, answer_radio, cooking_radio, try_state, food_name_state])
-            # cooking_radio.change(fn=select_cooking, inputs=[cooking_radio, food_name_state], outputs=[result_box, warning_box])
+            cooking_radio.change(fn=select_cooking, inputs=[cooking_radio, food_name_state], outputs=[result_box, warning_box])
             # 결과 확인용
-            cooking_radio.change(fn=select_cooking, inputs=[cooking_radio, food_name_state, gi_textbox], outputs=[result_box, warning_box, gi_textbox])
+            # cooking_radio.change(fn=select_cooking, inputs=[cooking_radio, food_name_state, gi_textbox], outputs=[result_box, warning_box, gi_textbox])
 
             predict_button.click(fn=check_food, inputs=[img_box], outputs=[food_name_state, quest_box])
             predict_button.click(fn=lambda : (gr.update(visible=True)), outputs=[group])
